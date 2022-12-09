@@ -29,11 +29,14 @@ class ProductManager {
         let existencia = this.products.find((producto) => producto.code === code);
         if (existencia) {
             reject(console.log("El producto ya existe"));
-        } else {
-            this.products.push(producto);
-            fs.writeFileSync(this.file,JSON.stringify(this.products),"utf8")
-        }
-        resolve();
+        } 
+        this.products.push(producto);
+        fs.writeFile(this.file,JSON.stringify(this.products),(err) => {
+            if (err) {
+                return console.log("error al agregar el producto");
+            }
+            resolve();
+        })
     });
     }
   
@@ -57,11 +60,10 @@ class ProductManager {
                 }
                 this.products = JSON.parse(data);
                 const productoFind = this.products.filter((product) => product.id === id );
-                if (productoFind.length === 0){
-                    resolve("No se encontro el producto con este id")
-                }else{
-                    resolve(productoFind);
+                if (productoFind.length === 0) {
+                    console.log("No se encontro el producto con este id");
                 }
+                resolve(productoFind);
             });
         });
     }
@@ -73,13 +75,18 @@ class ProductManager {
                 reject(err)
             }
             this.products = JSON.parse(data);
+            let len1 = this.products.length;
             this.products = this.products.filter((product)=> product.id !== id)
-            fs.writeFile("products.json",JSON.stringify(this.products), (err) => {
+            let len2 = this.products.length;
+            fs.writeFile(this.file,JSON.stringify(this.products),(err) => {
                 if (err) {
-                    reject(err)
+                    return console.log("error al eliminar producto");
                 }
                 resolve();
-            });
+            })
+            if (len1 === len2) {
+                return console.log("no se elimino ningun producto con ese id");
+            }
         });
     });
   }
@@ -117,8 +124,12 @@ class ProductManager {
         break;
     }
     this.products[posCamb]=miProducto
-    fs.writeFile;
-    resolve();
+    fs.writeFile(this.file,JSON.stringify(this.products), (err) => {
+        if (err) {
+            reject(err)
+        }
+        resolve();
+    });
     });
     }
 
@@ -128,41 +139,49 @@ class ProductManager {
 const productManager = new ProductManager([],"products.json");
 
 const runAwait = async () => {
-    let users = await productManager.getProducts();
-    console.log(users);
+    //llamar el metodo "getProducts" debe retornar un arreglo vacio"
+    let products = await productManager.getProducts()
+    console.log(products);
+    //agregar un producto  con el metodo "addProduct"
     await productManager.addProduct(
-    "Balon",
-    "El balon del mundial qatar 2022",
-    700,
-    "thumbnaildelbalon.com",
-    "0001",
-    25);
+        "producto prueba",
+        "Este es un producto prueba",
+        200,
+        "sin Imagen",
+        "abc123",
+        25
+    );
     await productManager.addProduct(
-    "Balon2",
-    "El balon del mundial qatar 2022-2",
-    700,
-    "thumbnaildelbalon.com2",
-    "0002",
-    25);
-    users = await productManager.getProducts();
-    console.log(users);
-    await productManager.deleteProduct(2)
-    console.log("borramos el id 2");
-    users = await productManager.getProducts();
-    console.log(users);
-
-/*     const productFilterErr = await productManager.getProductById(1234);
-    const productFilter = await productManager.getProductById(1);
-    console.log(productFilterErr);
-    console.log(productFilter);
+        "producto prueba -2",
+        "Este es un producto prueba -2",
+        200,
+        "sin Imagen -2",
+        "abc124",
+        30
+    );
+    //volvemos a llamar el metodo "getProducts" para comprobar que se agrego satisfactoriamente
+    products = await productManager.getProducts()
+    console.log(products);
+    //uso de el metodo "getProductById" para comprobar que funciona, en caso de no existir muestra un mensaje
+    //aqui muestra cuando no se encuentra
+    let productErr = await productManager.getProductById(12345)
+    let productOk = await productManager.getProductById(1)
+    console.log(productErr);
+    //aqui ya retorna el producto encontrado por id
+    console.log(productOk);
+    //comprobamos que el metodo "updateProduct" funciones, este recibe como parametros, el id, la llave a modificar, y el valor a agregar.
     await productManager.updateProduct(1,"title","Espadas (prueba update)")
-    users = await productManager.getProducts();
-    console.log(users);
-    await productManager.deleteProduct(12345);
-    await productManager.deleteProduct(1)
-    users = await productManager.getProducts();
-    console.log(users); */
-
+    //comprobamos que si haya cambiado
+    products = await productManager.getProducts()
+    console.log(products);
+    //uso del metodo "deleteProduct" para comprobar que si elimina el producto en caso de que no exista el id asociado mostrar un mensaje 
+    //aqui no existe el id
+    await productManager.deleteProduct(12345)
+    //aqui si existe el id
+    await productManager.deleteProduct(1)     
+    //comprobamos que si se haya eliminado, debera mostrar un arreglo solo con el objeto con id 2
+    products = await productManager.getProducts()
+    console.log(products);
 };
 
 runAwait();
