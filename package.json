@@ -1,11 +1,20 @@
 {
-  "name": "entregable01",
+  "name": "coder-back-entregables",
   "version": "1.0.0",
   "description": "",
-  "main": "entregable01.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A01800027/Coder-Back-Entregables.git"
+  },
+  "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/A01800027/Coder-Back-Entregables/issues"
+  },
+  "homepage": "https://github.com/A01800027/Coder-Back-Entregables#readme"
 }
