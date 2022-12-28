@@ -35,8 +35,11 @@ productRouter.get("/:pid", async(req, res) => {
     }
 });
 
-//falta agregar la condicion de que todo el body es obligatorio
 productRouter.post("/", async (req,res) => {
+    if(!req.body.title || !req.body.code || !req.body.description || !req.body.price || !req.body.status || !req.body.category || !req.body.stock){
+        res.status(400).send("Faltan datos");
+        return;
+    }        
     const newProduct = {
         id: v1(),
         ...req.body,
@@ -79,8 +82,9 @@ productRouter.put("/:pid", async (req,res) => {
             res.status(404).send("Producto no encontrado");
             return;
         }
+        newProduct.id = pid;
         products[productIndex] = newProduct;
-        await ProductFileManager.writeAll(products);
+        await productFileManager.writeAll(products);
         res.status(200).send(newProduct)
     } catch (err) {
         res.status(500).send(err.message)
